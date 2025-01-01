@@ -14,10 +14,10 @@ function App() {
 
     <>
 
-    <div className='h-[100vh]' style={{background: 'linear-gradient(90deg, #000016, #13035c, #030352)'}}>
+    <div className='h-[100vh] w-[100vw] overflow-hidden' style={{background: 'linear-gradient(90deg, #000016, #13035c, #030352)'}}>
       <Navbar/>
       <QAPlace/>
-      <Input/>
+     
     </div>
     </>
   )

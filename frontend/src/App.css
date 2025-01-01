@@ -4,3 +4,6 @@
     box-sizing: border-box;
     /* background: linear-gradient(90deg, #000016, #13035c, #030352); */
 }
+.workplace ::-webkit-scrollbar{
+    display: none;
+}
