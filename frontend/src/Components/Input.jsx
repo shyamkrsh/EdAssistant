@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { IoMdSend } from "react-icons/io";
-import { FaPlus } from "react-icons/fa";
 import axios from 'axios'
 
 
@@ -25,13 +24,13 @@ function Input({ setAnswer }) {
         <div>
             <form onSubmit={handleSubmit}>
                 <div className='flex items-center justify-center gap-1 h-[3rem] w-full md:w-[80%] fixed bottom-5'>
-                    <div className='btn bg-blue-950 h-[3rem] w-[3rem] rounded-full flex items-center justify-center text-blue-400 hover:opacity-90 hover:text-blue-500 cursor-pointer'>
+                    <div className='btn  h-[3rem] w-[3rem] rounded-full flex items-center justify-center text-blue-400 hover:opacity-90 hover:text-blue-500 cursor-pointer'>
                         <FaPlus className='text-3xl font-semibold text-slate-100' />
                     </div>
-                    <div className='w-[70%] bg-blue-950 h-full rounded-md'>
+                    <div className='w-[70%]  h-full rounded-md'>
                         <input className='w-full h-full rounded-md px-5 outline-none bg-transparent text-slate-400' type="text" placeholder='Ask your questions' value={value} onChange={(e) => setValue(e.target.value)} />
                     </div>
-                    <button type='submit' className='btn bg-blue-950 h-[3rem] w-[3rem] rounded-full flex items-center justify-center text-slate-100 hover:opacity-90 hover:text-blue-500'><IoMdSend className='text-3xl font-semibold' /></button>
+                    <button type='submit' className='btn  h-[3rem] w-[3rem] rounded-full flex items-center justify-center text-slate-100 hover:opacity-90 hover:text-blue-500'><IoMdSend className='text-3xl font-semibold' /></button>
                 </div>
             </form>
 

@@ -5,7 +5,7 @@ import { TbEdit } from "react-icons/tb";
 
 function Navbar() {
     return (
-        <header className='flex items-center justify-between px-4 w-[100%] h-[4rem] border-2' >
+        <header className='flex items-center justify-between px-4 w-[100%] h-[4rem]' >
             <div className='cursor-pointer md:hidden'>
                 <CgMenuRightAlt className='text-3xl  text-slate-700' />
             </div>
