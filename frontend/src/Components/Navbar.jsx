@@ -4,6 +4,8 @@ import { FaUser } from "react-icons/fa";
 import { TbEdit } from "react-icons/tb";
 
 function Navbar() {
+
+
     return (
         <header className='flex items-center justify-between px-4 w-[100%] h-[4rem]' >
             <div className='cursor-pointer md:hidden'>
@@ -14,7 +16,7 @@ function Navbar() {
             </div>
             <div>
                 <FaUser className='text-3xl  text-slate-700 hidden md:block' />
-                <TbEdit className='text-3xl  text-slate-700 md:hidden' />
+                <TbEdit className='text-3xl  text-slate-700 md:hidden' onClick={() => {localStorage.removeItem('questions'), localStorage.removeItem('answers')}} />
             </div>
         </header>
     )

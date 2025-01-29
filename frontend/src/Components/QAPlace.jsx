@@ -1,41 +1,93 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { BiSend } from "react-icons/bi";
 import { GoPlus } from "react-icons/go";
 import { CgAttachment } from "react-icons/cg";
 import { AiOutlineGlobal } from "react-icons/ai";
+import axios from 'axios'
 
 function QAPlace() {
 
-    const [answer, setAnswer] = useState("");
+    const [value, setValue] = useState("");
+    const [questions, setQuestions] = useState([]);
+    const [answers, setAnswers] = useState([]);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        setQuestions(JSON.parse(localStorage.getItem('questions')))
+        setAnswers(JSON.parse(localStorage.getItem('answers')))
+    });
+
+    if (!localStorage.getItem('questions')) {
+        localStorage.setItem('questions', JSON.stringify([]))
+    }
+    if (!localStorage.getItem('answers')) {
+        localStorage.setItem('answers', JSON.stringify([]))
+    }
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        let prevQuestions = JSON.parse(localStorage.getItem('questions'));
+        let question = value;
+        prevQuestions.push(question);
+        localStorage.setItem('questions', JSON.stringify(prevQuestions));
+        setLoading(true);
+        axios.post(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBfjro3dw9hviS_4YllqafkuwPEKT-P5UM`, {
+            "contents": [{
+                "parts": [{ "text": `${value}` }]
+            }]
+        }).then((res) => {
+            setValue("");
+            let prevAnswers = JSON.parse(localStorage.getItem('answers'));
+            let answer = res.data.candidates[0].content.parts[0].text;
+            prevAnswers.push(answer);
+            localStorage.setItem('answers', JSON.stringify(prevAnswers));
+            setLoading(false);
+        })
+    }
+
 
     return (
         <>
             <div className='relative w-[100%] h-[100%]'>
                 <div className='answerArea w-[100%] h-[33.5rem] absolute flex flex-col overflow-scroll'>
-                    <div className='w-[100%] p-1 flex justify-end'>
-                        <div className='w-[60%] px-1'>
-                            <p className='text-slate-600 bg-slate-200 p-2 rounded-lg'>Who is the prime minister of india? </p>
-                        </div>
-                    </div>
-                    <div className='w-[100%] p-1'>
-                        <p className='p-2'>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Est, dicta cupiditate. Quod cumque recusandae ut provident aperiam accusantium qui sequi deserunt alias sapiente, ipsa quo! Quos, cum dolores, deleniti pariatur minus beatae, nisi fugit sequi officia repudiandae quas ex temporibus. Quam voluptas reiciendis consequatur qui? Molestias, nam iste expedita eius quam voluptas in, praesentium nisi beatae illo quos eveniet, mollitia reiciendis quasi aliquam omnis temporibus nihil ipsa quo fugit aspernatur asperiores ipsum architecto repellendus! Velit quidem cumque ratione laborum consectetur ut minima sed! Minima, dolore amet praesentium iste rerum magni. Necessitatibus cum omnis dolores hic nam, impedit voluptate perferendis autem. Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quidem dolorum est aperiam quaerat consectetur quod veritatis commodi! Et, quaerat. Nam necessitatibus, quae nulla natus quos libero asperiores illum vitae velit accusantium fuga id eligendi eveniet iure dolor ab harum rem provident? Commodi ad quis eum inventore.</p>
+
+                    {
+                        questions?.map((question, index) => {
+                            return (
+                                <div>
+                                    <div key={index} className='w-[100%] p-1 flex justify-end'>
+                                        <div className='w-[60%] px-1'>
+                                            <p className='text-slate-600 bg-slate-200 p-2 rounded-lg'>{question}</p>
+                                        </div>
+                                    </div>
+                                    <div className='w-[100%] p-1'>
+                                        <h3 className='px-2 font-bold'>Ans : </h3>
+                                        <p className='px-2 py-1'>{answers[index]}</p>
+                                    </div>
+                                </div>
+                            )
+                        })
+                    }
+                    <div className={loading ? 'ms-3 w-[3rem] h-[2rem] bg-slate-100 border grid place-items-center rounded-lg ' : 'hidden'}>
+                        <span className="loading loading-dots loading-md text-slate-950"></span>
                     </div>
                 </div>
 
                 <div className='inputArea w-[100%] h-[8rem] fixed bottom-5  px-2 flex flex-col gap-2 border-t rounded-lg'>
-                    <div className='mt-1'>
-                        <textarea type="text" placeholder='Ask your questions ..' className='outline-none  w-[100%] h-[4rem] py-1.5 px-1.5 ' rows={4}></textarea>
-                    </div>
-                    <div className='flex justify-between items-center'>
-                        <div className='flex gap-3 items-center'>
-                            <GoPlus className='text-3xl  text-slate-600' />
-                            <CgAttachment className='text-2xl  text-slate-600' />
-                            <AiOutlineGlobal className='text-3xl text-slate-600' />
+                    <form onSubmit={handleSubmit}>
+                        <div className='mt-1'>
+                            <textarea type="text" placeholder='Ask your questions ..' className='outline-none  w-[100%] h-[4rem] py-1.5 px-1.5 ' value={value} onChange={(e) => setValue(e.target.value)} rows={4}></textarea>
                         </div>
-                        <button className='w-[2.5rem] h-[2.5rem] rounded-full flex items-center justify-center text-slate-600 hover:text-blue-500 bg-slate-300'>
-                            <BiSend className='text-3xl font-semibold text-slate-600' />
-                        </button>
-                    </div>
+                        <div className='flex justify-between items-center'>
+                            <div className='flex gap-3 items-center'>
+                                <GoPlus className='text-3xl  text-slate-600' />
+                                <CgAttachment className='text-2xl  text-slate-600' />
+                                <AiOutlineGlobal className='text-3xl text-slate-600' />
+                            </div>
+                            <button type='submit' className='w-[2.5rem] h-[2.5rem] rounded-full flex items-center justify-center text-slate-600 hover:text-blue-500 bg-slate-300'>
+                                <BiSend className='text-3xl font-semibold text-slate-600' />
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </>
