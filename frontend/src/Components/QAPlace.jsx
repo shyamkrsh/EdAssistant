@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { BiSend } from "react-icons/bi";
 import { GoPlus } from "react-icons/go";
 import { CgAttachment } from "react-icons/cg";
@@ -11,11 +11,19 @@ function QAPlace() {
     const [questions, setQuestions] = useState([]);
     const [answers, setAnswers] = useState([]);
     const [loading, setLoading] = useState(false);
+    const chatRef = useRef(null);
+
+
+
+    window.onscroll = useEffect(() => {
+        chatRef.current.scrollTop = chatRef.current.scrollHeight;
+    }, []);
 
     useEffect(() => {
         setQuestions(JSON.parse(localStorage.getItem('questions')))
         setAnswers(JSON.parse(localStorage.getItem('answers')))
     });
+
 
     if (!localStorage.getItem('questions')) {
         localStorage.setItem('questions', JSON.stringify([]))
@@ -25,43 +33,50 @@ function QAPlace() {
     }
     const handleSubmit = (e) => {
         e.preventDefault();
-        let prevQuestions = JSON.parse(localStorage.getItem('questions'));
-        let question = value;
-        prevQuestions.push(question);
-        localStorage.setItem('questions', JSON.stringify(prevQuestions));
-        setLoading(true);
-        axios.post(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBfjro3dw9hviS_4YllqafkuwPEKT-P5UM`, {
-            "contents": [{
-                "parts": [{ "text": `${value}` }]
-            }]
-        }).then((res) => {
-            setValue("");
-            let prevAnswers = JSON.parse(localStorage.getItem('answers'));
-            let answer = res.data.candidates[0].content.parts[0].text;
-            prevAnswers.push(answer);
-            localStorage.setItem('answers', JSON.stringify(prevAnswers));
-            setLoading(false);
-        })
+        if (value !== "") {
+            let prevQuestions = JSON.parse(localStorage.getItem('questions'));
+            let question = value;
+            prevQuestions.push(question);
+            localStorage.setItem('questions', JSON.stringify(prevQuestions));
+            setLoading(true);
+            axios.post(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBfjro3dw9hviS_4YllqafkuwPEKT-P5UM`, {
+                "contents": [{
+                    "parts": [{ "text": `${value}` }]
+                }]
+            }).then((res) => {
+                setValue("");
+                console.log("API Response - " + res);
+                let prevAnswers = JSON.parse(localStorage.getItem('answers'));
+                let answer = res.data.candidates[0].content.parts[0].text;
+                console.log(answer);
+                prevAnswers.push(answer);
+                localStorage.setItem('answers', JSON.stringify(prevAnswers));
+                chatRef.current.scrollTop = chatRef.current.scrollHeight;
+                setLoading(false);
+            })
+        }
     }
 
 
     return (
         <>
             <div className='relative w-[100%] h-[100%]'>
-                <div className='answerArea w-[100%] h-[33.5rem] absolute flex flex-col overflow-scroll'>
+                <div className='answerArea w-[100%] h-[33.5rem] absolute flex flex-col overflow-scroll' ref={chatRef}>
 
                     {
                         questions?.map((question, index) => {
                             return (
-                                <div>
-                                    <div key={index} className='w-[100%] p-1 flex justify-end'>
-                                        <div className='w-[60%] px-1'>
+                                <div key={index}>
+                                    <div className='w-[100%] p-1 flex justify-end'>
+                                        <div className='max-w-[60%]  px-1'>
                                             <p className='text-slate-600 bg-slate-200 p-2 rounded-lg'>{question}</p>
                                         </div>
                                     </div>
                                     <div className='w-[100%] p-1'>
                                         <h3 className='px-2 font-bold'>Ans : </h3>
-                                        <p className='px-2 py-1'>{answers[index]}</p>
+                                        <p className='px-2 py-1'>
+                                            {answers[index]?.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')?.replace(/`([^`]+)`/g, '<code>$1</code>')}
+                                        </p>
                                     </div>
                                 </div>
                             )
