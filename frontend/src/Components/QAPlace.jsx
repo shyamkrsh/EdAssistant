@@ -53,29 +53,28 @@ function QAPlace() {
         var recognition = new SpeechRecognition();
         recognition.start();
         recognition.onresult = function (event) {
-            var transcript = event.results[0][0].transcript;
+            let transcript = event.results[0][0].transcript;
             setValue(transcript);
             recognition.stop();
-            if (value !== "") {
-                let prevQuestions = JSON.parse(localStorage.getItem('questions'));
-                let question = value;
-                prevQuestions.push(question);
-                localStorage.setItem('questions', JSON.stringify(prevQuestions));
-                setLoading(true);
-                axios.post(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBfjro3dw9hviS_4YllqafkuwPEKT-P5UM`, {
-                    "contents": [{
-                        "parts": [{ "text": `${value}` }]
-                    }]
-                }).then((res) => {
-                    setValue("");
-                    let prevAnswers = JSON.parse(localStorage.getItem('answers'));
-                    let answer = res.data.candidates[0].content.parts[0].text;
-                    prevAnswers.push(answer);
-                    localStorage.setItem('answers', JSON.stringify(prevAnswers));
-                    chatRef.current.scrollTop = chatRef.current.scrollHeight;
-                    setLoading(false);
-                })
-            }
+            let prevQuestions = JSON.parse(localStorage.getItem('questions'));
+            let question = transcript;
+            prevQuestions.push(question);
+            localStorage.setItem('questions', JSON.stringify(prevQuestions));
+            setLoading(true);
+            axios.post(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBfjro3dw9hviS_4YllqafkuwPEKT-P5UM`, {
+                "contents": [{
+                    "parts": [{ "text": `${transcript}` }]
+                }]
+            }).then((res) => {
+                setValue("");
+                let prevAnswers = JSON.parse(localStorage.getItem('answers'));
+                let answer = res.data.candidates[0].content.parts[0].text;
+                prevAnswers.push(answer);
+                localStorage.setItem('answers', JSON.stringify(prevAnswers));
+                chatRef.current.scrollTop = chatRef.current.scrollHeight;
+                setLoading(false);
+            })
+
         }
     }
 
@@ -111,24 +110,24 @@ function QAPlace() {
 
                 <div className='inputArea w-[100%] h-[8rem] fixed bottom-5  px-2 flex flex-col gap-2 border-t rounded-lg'>
 
-                        <div className='mt-1'>
-                            <textarea type="text" placeholder='Ask your questions ..' className='outline-none  w-[100%] h-[4rem] py-1.5 px-1.5 ' value={value} onChange={(e) => setValue(e.target.value)} rows={4}></textarea>
+                    <div className='mt-1'>
+                        <textarea type="text" placeholder='Ask your questions ..' className='outline-none  w-[100%] h-[4rem] py-1.5 px-1.5 ' value={value} onChange={(e) => setValue(e.target.value)} rows={4}></textarea>
+                    </div>
+                    <div className='flex justify-between items-center'>
+                        <div className='flex gap-3 items-center'>
+                            <GoPlus className='text-3xl  text-slate-600' />
+                            <CgAttachment className='text-2xl  text-slate-600' />
+                            <AiOutlineGlobal className='text-3xl text-slate-600' />
                         </div>
-                        <div className='flex justify-between items-center'>
-                            <div className='flex gap-3 items-center'>
-                                <GoPlus className='text-3xl  text-slate-600' />
-                                <CgAttachment className='text-2xl  text-slate-600' />
-                                <AiOutlineGlobal className='text-3xl text-slate-600' />
-                            </div>
-                            <div className='flex gap-4 items-center'>
-                                <IoMicOutline className='text-3xl text-slate-600' onClick={handleSpeech} />
-                                <button onClick={handleSubmit} type='submit' className='w-[2.5rem] h-[2.5rem] rounded-full flex items-center justify-center text-slate-600 hover:text-blue-500 bg-slate-300'>
-                                    <BiSend className='text-3xl font-semibold text-slate-600' />
-                                </button>
-                            </div>
+                        <div className='flex gap-4 items-center'>
+                            <IoMicOutline className='text-3xl text-slate-600' onClick={handleSpeech} />
+                            <button onClick={handleSubmit} type='submit' className='w-[2.5rem] h-[2.5rem] rounded-full flex items-center justify-center text-slate-600 hover:text-blue-500 bg-slate-300'>
+                                <BiSend className='text-3xl font-semibold text-slate-600' />
+                            </button>
+                        </div>
 
-                        </div>
-          
+                    </div>
+
                 </div>
             </div>
         </>
