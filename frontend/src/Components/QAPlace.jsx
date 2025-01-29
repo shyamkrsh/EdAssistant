@@ -4,20 +4,14 @@ import { GoPlus } from "react-icons/go";
 import { CgAttachment } from "react-icons/cg";
 import { AiOutlineGlobal } from "react-icons/ai";
 import axios from 'axios'
+import { IoMicOutline } from "react-icons/io5";
 
 function QAPlace() {
-
     const [value, setValue] = useState("");
     const [questions, setQuestions] = useState([]);
     const [answers, setAnswers] = useState([]);
     const [loading, setLoading] = useState(false);
     const chatRef = useRef(null);
-
-
-
-    window.onscroll = useEffect(() => {
-        chatRef.current.scrollTop = chatRef.current.scrollHeight;
-    }, []);
 
     useEffect(() => {
         setQuestions(JSON.parse(localStorage.getItem('questions')))
@@ -31,8 +25,7 @@ function QAPlace() {
     if (!localStorage.getItem('answers')) {
         localStorage.setItem('answers', JSON.stringify([]))
     }
-    const handleSubmit = (e) => {
-        e.preventDefault();
+    const handleSubmit = () => {
         if (value !== "") {
             let prevQuestions = JSON.parse(localStorage.getItem('questions'));
             let question = value;
@@ -45,15 +38,44 @@ function QAPlace() {
                 }]
             }).then((res) => {
                 setValue("");
-                console.log("API Response - " + res);
                 let prevAnswers = JSON.parse(localStorage.getItem('answers'));
                 let answer = res.data.candidates[0].content.parts[0].text;
-                console.log(answer);
                 prevAnswers.push(answer);
                 localStorage.setItem('answers', JSON.stringify(prevAnswers));
                 chatRef.current.scrollTop = chatRef.current.scrollHeight;
                 setLoading(false);
             })
+        }
+    }
+
+    let handleSpeech = () => {
+        var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        var recognition = new SpeechRecognition();
+        recognition.start();
+        recognition.onresult = function (event) {
+            var transcript = event.results[0][0].transcript;
+            setValue(transcript);
+            recognition.stop();
+            if (value !== "") {
+                let prevQuestions = JSON.parse(localStorage.getItem('questions'));
+                let question = value;
+                prevQuestions.push(question);
+                localStorage.setItem('questions', JSON.stringify(prevQuestions));
+                setLoading(true);
+                axios.post(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBfjro3dw9hviS_4YllqafkuwPEKT-P5UM`, {
+                    "contents": [{
+                        "parts": [{ "text": `${value}` }]
+                    }]
+                }).then((res) => {
+                    setValue("");
+                    let prevAnswers = JSON.parse(localStorage.getItem('answers'));
+                    let answer = res.data.candidates[0].content.parts[0].text;
+                    prevAnswers.push(answer);
+                    localStorage.setItem('answers', JSON.stringify(prevAnswers));
+                    chatRef.current.scrollTop = chatRef.current.scrollHeight;
+                    setLoading(false);
+                })
+            }
         }
     }
 
@@ -88,7 +110,7 @@ function QAPlace() {
                 </div>
 
                 <div className='inputArea w-[100%] h-[8rem] fixed bottom-5  px-2 flex flex-col gap-2 border-t rounded-lg'>
-                    <form onSubmit={handleSubmit}>
+
                         <div className='mt-1'>
                             <textarea type="text" placeholder='Ask your questions ..' className='outline-none  w-[100%] h-[4rem] py-1.5 px-1.5 ' value={value} onChange={(e) => setValue(e.target.value)} rows={4}></textarea>
                         </div>
@@ -98,11 +120,15 @@ function QAPlace() {
                                 <CgAttachment className='text-2xl  text-slate-600' />
                                 <AiOutlineGlobal className='text-3xl text-slate-600' />
                             </div>
-                            <button type='submit' className='w-[2.5rem] h-[2.5rem] rounded-full flex items-center justify-center text-slate-600 hover:text-blue-500 bg-slate-300'>
-                                <BiSend className='text-3xl font-semibold text-slate-600' />
-                            </button>
+                            <div className='flex gap-4 items-center'>
+                                <IoMicOutline className='text-3xl text-slate-600' onClick={handleSpeech} />
+                                <button onClick={handleSubmit} type='submit' className='w-[2.5rem] h-[2.5rem] rounded-full flex items-center justify-center text-slate-600 hover:text-blue-500 bg-slate-300'>
+                                    <BiSend className='text-3xl font-semibold text-slate-600' />
+                                </button>
+                            </div>
+
                         </div>
-                    </form>
+          
                 </div>
             </div>
         </>
