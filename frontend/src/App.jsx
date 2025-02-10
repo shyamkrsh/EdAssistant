@@ -8,8 +8,11 @@ function App() {
   return (
 
     <>
-      <Navbar />
-      <QAPlace />
+      <div className='bg-cyan-50' style={{ maxHeight: '100vh', minHeight: '100vh' }}>
+        <Navbar />
+        <QAPlace />
+      </div>
+
     </>
   )
 }

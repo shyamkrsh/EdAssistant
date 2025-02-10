@@ -2,8 +2,14 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    /* background: linear-gradient(90deg, #000016, #13035c, #030352); */
 }
-.workplace ::-webkit-scrollbar{
-    display: none;
+.cardBtn{
+    background: linear-gradient(to right, #00ffff, #3de89e, #00ffff);
+    padding: 5px;
+    border-radius: 50%;
+}
+.searchBtn{
+    background: linear-gradient(to right, #00ffff, #00fff1, #00ffff);
+    padding: 5px;
+    border-radius: 50%;
 }
